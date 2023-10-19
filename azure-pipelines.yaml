@@ -17,7 +17,7 @@ variables:
   projectRoot: '$(Build.SourcesDirectory)'
   environmentName: 'test'
   backendResourceGroup: 'AzureDevOps'
-  backendStorageAccountName: 'tfstate189129926'
+  backendStorageAccountName: 'tfstate281845088'
   backendContainerName: 'tfstate'
   backendKey: 'test.terraform.tfstate'
 
@@ -25,6 +25,8 @@ stages:
   - stage: Build
     jobs:
       - job: BuildInfrastructure
+        strategy:
+          maxParallel: 1  # Set the maximum parallelism to 1
         steps:
           - task: UsePythonVersion@0
             inputs:
@@ -36,14 +38,16 @@ stages:
               echo "Python version: $(python --version)"
             displayName: 'Check Python version'
 
+          - task: TerraformInstaller@0
+            displayName: 'Install Terraform'
+            inputs:
+              terraformVersion: '1.2.9'
+
           - script: 'echo "Terraform version: $(terraform --version)"'
             displayName: 'Check Terraform version'
 
           - script: 'ls -R'
             displayName: 'List Files in Repository'
-
-          - script: 'terraform --version'
-            displayName: 'Terraform Version'
 
           - script: |
               terraform init -backend-config="resource_group_name=$(backendResourceGroup)" -backend-config="storage_account_name=$(backendStorageAccountName)" -backend-config="container_name=$(backendContainerName)" -backend-config="key=$(backendKey)" $(projectRoot)/terraform/environments/$(environmentName)
@@ -59,6 +63,8 @@ stages:
   - stage: Destroy
     jobs:
       - job: DestroyInfrastructure
+        strategy:
+          maxParallel: 1  # Set the maximum parallelism to 1
         steps:
           - script: |
               terraform destroy -auto-approve $(projectRoot)/terraform/environments/$(environmentName)
