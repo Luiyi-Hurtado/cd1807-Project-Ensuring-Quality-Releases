@@ -38,11 +38,6 @@ stages:
               echo "Python version: $(python --version)"
             displayName: 'Check Python version'
 
-          - task: TerraformInstaller@0
-            displayName: 'Install Terraform'
-            inputs:
-              terraformVersion: '1.2.9'
-
           - script: 'echo "Terraform version: $(terraform --version)"'
             displayName: 'Check Terraform version'
 
