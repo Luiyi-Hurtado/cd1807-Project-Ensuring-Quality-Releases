@@ -1,66 +1,20 @@
-name: Azure DevOps Pipeline
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
 
 trigger:
-  branches:
-    exclude:
-      - '*'
-
-pr:
-  - '*'
+- main
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: ubuntu-latest
+  name: Default
 
-variables:
-  pythonVersion: '3.8'
-  azureServiceConnection: 'cd1807-Project-Ensuring-Quality-Releases'
-  projectRoot: '$(Build.SourcesDirectory)'
-  environmentName: 'test'
-  backendResourceGroup: 'AzureDevOps'
-  backendStorageAccountName: 'tfstate281845088'
-  backendContainerName: 'tfstate'
-  backendKey: 'test.terraform.tfstate'
+steps:
+- script: echo Hello, world!
+  displayName: 'Run a one-line script'
 
-stages:
-  - stage: Build
-    jobs:
-      - job: BuildInfrastructure
-        strategy:
-          maxParallel: 1  # Set the maximum parallelism to 1
-        steps:
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: '$(pythonVersion)'
-              addToPath: true
-              architecture: 'x64'
-
-          - script: |
-              echo "Python version: $(python --version)"
-            displayName: 'Check Python version'
-
-          - script: 'echo "Terraform version: $(terraform --version)"'
-            displayName: 'Check Terraform version'
-
-          - script: 'ls -R'
-            displayName: 'List Files in Repository'
-
-          - script: |
-              terraform init -backend-config="resource_group_name=$(backendResourceGroup)" -backend-config="storage_account_name=$(backendStorageAccountName)" -backend-config="container_name=$(backendContainerName)" -backend-config="key=$(backendKey)" $(projectRoot)/terraform/environments/$(environmentName)
-            displayName: 'Terraform Init'
-
-          - script: 'terraform validate $(projectRoot)/terraform/environments/$(environmentName)'
-            displayName: 'Terraform Validate'
-
-          - script: |
-              terraform apply -auto-approve $(projectRoot)/terraform/environments/$(environmentName)
-            displayName: 'Terraform Apply'
-
-  - stage: Destroy
-    jobs:
-      - job: DestroyInfrastructure
-        strategy:
-          maxParallel: 1  # Set the maximum parallelism to 1
-        steps:
-          - script: |
-              terraform destroy -auto-approve $(projectRoot)/terraform/environments/$(environmentName)
-            displayName: 'Terraform Destroy'
+- script: |
+    echo Add other tasks to build, test, and deploy your project.
+    echo See https://aka.ms/yaml
+  displayName: 'Run a multi-line script'
