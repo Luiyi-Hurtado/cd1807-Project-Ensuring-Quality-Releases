@@ -1,20 +1,50 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
+name: Azure Pipelines
 trigger:
-- main
-
+  - main
 pool:
   vmImage: ubuntu-latest
   name: myAgentPool
-
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+variables:
+  python.version: 3.7.6
+  azureServiceConnectionId: myServiceConnection
+  projectRoot: $(System.DefaultWorkingDirectory)
+  environmentName: test
+stages:
+  - stage: Build
+    jobs:
+      - job: BuildInfrastructure
+        steps:
+          - task: TerraformInstaller@0
+            displayName: Terrafom installation
+            inputs:
+              terraformVersion: 1.2.9
+          - task: TerraformTaskV3@3
+            displayName: Terrafom init
+            inputs:
+              provider: azurerm
+              command: init
+              workingDirectory: $(System.DefaultWorkingDirectory)/terraform/environments/test
+              backendServiceArm: $(azureServiceConnectionId)
+              backendAzureRmResourceGroupName: Azuredevops
+              backendAzureRmStorageAccountName: tfstate281845088
+              backendAzureRmContainerName: tfstate
+              backendAzureRmKey: test.terraform.tfstate
+          - task: TerraformTaskV3@3
+            displayName: Terraform validate
+            inputs:
+              provider: azurerm
+              command: validate
+          - task: TerraformTaskV3@3
+            displayName: Terraform apply
+            inputs:
+              provider: azurerm
+              command: apply
+              workingDirectory: $(System.DefaultWorkingDirectory)/terraform/environments/test
+              environmentServiceNameAzureRM: $(azureServiceConnectionId)
+          - task: TerraformTaskV3@3
+            displayName: Terraform destroy
+            inputs:
+              provider: azurerm
+              command: destroy
+              workingDirectory: $(System.DefaultWorkingDirectory)/terraform/environments/test
+              environmentServiceNameAzureRM: $(azureServiceConnectionId)
