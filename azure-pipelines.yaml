@@ -24,12 +24,6 @@ stages:
             inputs:
               versionSpec: '$(python.version)'
               addToPath: true
-
-          - task: TerraformInstaller@0
-            displayName: 'Terraform Installation'
-            inputs:
-              terraformVersion: '1.2.9'
-
           - task: TerraformTaskV3@3
             displayName: 'Terraform Init'
             inputs:
