@@ -1,50 +1,65 @@
 name: Azure Pipelines
+
 trigger:
-  - main
+  branches:
+    exclude:
+      - '*'
+
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'ubuntu-latest'
   name: myAgentPool
+
 variables:
   python.version: 3.8.10
-  azureServiceConnectionId: myServiceConnection
+  azureServiceConnectionId: 'myServiceConnection'
   projectRoot: $(System.DefaultWorkingDirectory)
-  environmentName: test
+  environmentName: 'test'
+
 stages:
   - stage: Build
     jobs:
       - job: BuildInfrastructure
         steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '$(python.version)'
+              addToPath: true
+
           - task: TerraformInstaller@0
-            displayName: Terrafom installation
+            displayName: 'Terraform Installation'
             inputs:
-              terraformVersion: 1.2.9
+              terraformVersion: '1.2.9'
+
           - task: TerraformTaskV3@3
-            displayName: Terrafom init
+            displayName: 'Terraform Init'
             inputs:
-              provider: azurerm
-              command: init
-              workingDirectory: $(System.DefaultWorkingDirectory)/terraform/environments/test
+              provider: 'azurerm'
+              command: 'init'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/$(environmentName)'
               backendServiceArm: $(azureServiceConnectionId)
-              backendAzureRmResourceGroupName: Azuredevops
-              backendAzureRmStorageAccountName: tfstate1822723230
-              backendAzureRmContainerName: tfstate
-              backendAzureRmKey: test.terraform.tfstate
+              backendAzureRmResourceGroupName: 'Azuredevops'
+              backendAzureRmStorageAccountName: 'tfstate1822723230'
+              backendAzureRmContainerName: 'tfstate'
+              backendAzureRmKey: 'test.terraform.tfstate'
+
           - task: TerraformTaskV3@3
-            displayName: Terraform validate
+            displayName: 'Terraform Validate'
             inputs:
-              provider: azurerm
-              command: validate
+              provider: 'azurerm'
+              command: 'validate'
+
           - task: TerraformTaskV3@3
-            displayName: Terraform apply
+            displayName: 'Terraform Apply'
             inputs:
-              provider: azurerm
-              command: apply
-              workingDirectory: $(System.DefaultWorkingDirectory)/terraform/environments/test
+              provider: 'azurerm'
+              command: 'apply'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/$(environmentName)'
               environmentServiceNameAzureRM: $(azureServiceConnectionId)
+
           - task: TerraformTaskV3@3
-            displayName: Terraform destroy
+            displayName: 'Terraform Destroy'
             inputs:
-              provider: azurerm
-              command: destroy
-              workingDirectory: $(System.DefaultWorkingDirectory)/terraform/environments/test
+              provider: 'azurerm'
+              command: 'destroy'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/$(environmentName)'
               environmentServiceNameAzureRM: $(azureServiceConnectionId)
