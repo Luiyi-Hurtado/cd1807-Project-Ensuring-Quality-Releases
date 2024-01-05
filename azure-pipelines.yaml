@@ -1,46 +1,10 @@
 steps:
-# Install Terraform on the pipeline agent 
-- task: HashiCorpTerraformInstaller@0
-  displayName: 'Terraform Installation'
-  inputs:
-    terraformVersion: '1.2.9'
-
-# Run Terraform Init on the pipeline agent 
-- task: HashiCorpTerraformTaskV1@0
-  displayName: 'Terraform Init'
-  inputs:
-    provider: 'azurerm'
-    command: 'init'
-    workingDirectory: '$(projectRoot)/terraform/environments/test'
-    backendServiceArm: '$(azureServiceConnectionId)'
-    backendAzureRmResourceGroupName: 'Azuredevops'
-    backendAzureRmStorageAccountName: 'tfstate281845088'
-    backendAzureRmContainerName: 'tfstate'
-    backendAzureRmKey: 'test.terraform.tfstate'
-
-# Run Terraform Validate    
-- task: HashiCorpTerraformTaskV1@0
-  displayName: 'Terraform Validate'
-  inputs:
-    provider: 'azurerm'
-    command: 'validate'
-
-# Run Terraform Apply
-# ToDo: Change the workingDirectory path, as applicable to you
-- task: HashiCorpTerraformTaskV1@0
-  displayName: 'Terraform Apply'
-  inputs:
-    provider: 'azurerm'
-    command: 'apply'
-    workingDirectory: '$(projectRoot)/terraform/environments/test'
-    environmentServiceNameAzureRM: '$(azureServiceConnectionId)'
-
-# Destroy the resources in Azure
-# ToDo: Change the workingDirectory path, as applicable to you
-- task: HashiCorpTerraformTaskV1@0
-  displayName: 'Terraform Destroy'
-  inputs:
-    provider: 'azurerm'
-    command: 'destroy'
-    workingDirectory: '$(projectRoot)/terraform/environments/test'
-    environmentServiceNameAzureRM: '$(azureServiceConnectionId)
+  - task: HashiCorpTerraformTaskV1@0
+    displayName: 'Terraform Apply'
+    inputs:
+      provider: 'azurerm'
+      command: 'apply'
+      workingDirectory: '$(projectRoot)/terraform/environments/test'
+      environmentServiceNameAzureRM: '$(azureServiceConnectionId)'
+      problematicString: 'This is a quoted scalar with some problem'
+      anotherInput: 'Another value'
