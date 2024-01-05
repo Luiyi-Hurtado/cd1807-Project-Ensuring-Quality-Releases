@@ -1,64 +1,46 @@
-# Azure Pipelines
+steps:
+# Install Terraform on the pipeline agent 
+- task: HashiCorpTerraformInstaller@0
+  displayName: 'Terraform Installation'
+  inputs:
+    terraformVersion: '1.2.9'
 
-# ToDo: Replace the agent pool name, if you are using Udacity Cloud lab.
-# Otherwise, comment out the line below or refer to documentation for agent pools.
-pool: myAgentPool
+# Run Terraform Init on the pipeline agent 
+- task: HashiCorpTerraformTaskV1@0
+  displayName: 'Terraform Init'
+  inputs:
+    provider: 'azurerm'
+    command: 'init'
+    workingDirectory: '$(projectRoot)/terraform/environments/test'
+    backendServiceArm: '$(azureServiceConnectionId)'
+    backendAzureRmResourceGroupName: 'Azuredevops'
+    backendAzureRmStorageAccountName: 'tfstate281845088'
+    backendAzureRmContainerName: 'tfstate'
+    backendAzureRmKey: 'test.terraform.tfstate'
 
-variables:
-  pythonVersion: '3.7.6'
-  # ToDo: Replace the service connection name as used in the DevOps project settings.
-  azureServiceConnectionId: 'myServiceConnection'
-  projectRoot: $(System.DefaultWorkingDirectory)
-  environmentName: 'test'
+# Run Terraform Validate    
+- task: HashiCorpTerraformTaskV1@0
+  displayName: 'Terraform Validate'
+  inputs:
+    provider: 'azurerm'
+    command: 'validate'
 
-stages:
-- stage: BuildInfrastructure
-  jobs:
-  - job: TerraformBuild
-    steps:
-    # Install Terraform on the pipeline agent 
-    - task: TerraformInstaller@0
-      displayName: 'Terraform Installation'
-      inputs:
-        terraformVersion: '1.2.9'
-    
-    # Run Terraform Init on the pipeline agent 
-    # Initializes Terraform in the specified directory.
-    - task: TerraformTaskV3@3
-      displayName: 'Terraform Init'
-      inputs:
-        provider: 'azurerm'
-        command: 'init'
-        workingDirectory: '$(projectRoot)/terraform/environments/test'
-        backendServiceArm: '$(azureServiceConnectionId)'
-        backendAzureRmResourceGroupName: 'Azuredevops'
-        backendAzureRmStorageAccountName: 'tfstate281845088'
-        backendAzureRmContainerName: 'tfstate'
-        backendAzureRmKey: 'test.terraform.tfstate'
+# Run Terraform Apply
+# ToDo: Change the workingDirectory path, as applicable to you
+- task: HashiCorpTerraformTaskV1@0
+  displayName: 'Terraform Apply'
+  inputs:
+    provider: 'azurerm'
+    command: 'apply'
+    workingDirectory: '$(projectRoot)/terraform/environments/test'
+    environmentServiceNameAzureRM: '$(azureServiceConnectionId)'
 
-    # Run Terraform Validate    
-    - task: TerraformTaskV3@3
-      displayName: 'Terraform Validate'
-      inputs:
-        provider: 'azurerm'
-        command: 'validate'
-
-    # Run Terraform Apply
-    # ToDo: Change the workingDirectory path, as applicable to you
-    - task: TerraformTaskV3@3
-      displayName: 'Terraform Apply'
-      inputs:
-        provider: 'azurerm'
-        command: 'apply'
-        workingDirectory: '$(projectRoot)/terraform/environments/test'
-        environmentServiceNameAzureRM: '$(azureServiceConnectionId)'
-
-    # Destroy the resources in Azure
-    # ToDo: Change the workingDirectory path, as applicable to you
-    - task: TerraformTaskV3@3
-      displayName: 'Terraform Destroy'
-      inputs:
-        provider: 'azurerm'
-        command: 'destroy'
-        workingDirectory: '$(projectRoot)/terraform/environments/test'
-        environmentServiceNameAzureRM: '$(azureServiceConnectionId)'
+# Destroy the resources in Azure
+# ToDo: Change the workingDirectory path, as applicable to you
+- task: HashiCorpTerraformTaskV1@0
+  displayName: 'Terraform Destroy'
+  inputs:
+    provider: 'azurerm'
+    command: 'destroy'
+    workingDirectory: '$(projectRoot)/terraform/environments/test'
+    environmentServiceNameAzureRM: '$(azureServiceConnectionId)
