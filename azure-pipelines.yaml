@@ -14,8 +14,7 @@ variables:
   # Project root folder. Point to the folder containing manage.py file.
   projectRoot: $(System.DefaultWorkingDirectory)
   # Environment name
-  environmentName: 'dev'
-
+  environmentName: 'test'
 stages:
 - stage: Build
   jobs:
@@ -40,6 +39,7 @@ stages:
         backendAzureRmStorageAccountName: 'tfstate2627316621'
         backendAzureRmContainerName: 'tfstate'
         backendAzureRmKey: 'test.terraform.tfstate'
+
     # Run Terraform Validate    
     - task: TerraformTaskV3@3
       displayName: Terraform validate
