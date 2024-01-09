@@ -280,7 +280,7 @@ stages:
                 export PATH=$PATH:/home/longdv/app
                 echo "Starting Selenium Tests"
                 pwd
-                python3 functional_ui_test.py >> selenium.log
+                python3 login.py >> selenium.log
                 cat selenium.log
                 echo "Completed Selenium Tests. Check selenium.log for results."
                 
