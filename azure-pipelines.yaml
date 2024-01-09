@@ -34,6 +34,7 @@ stages:
       displayName: 'Terrafom installation'
       inputs:
         terraformVersion: '1.2.9'
+      enabled: false
     
     # Run Terraform Init on the pipeline agent 
     - task: TerraformTaskV3@3
@@ -47,12 +48,14 @@ stages:
         backendAzureRmStorageAccountName: 'tfstate2708617824'
         backendAzureRmContainerName: 'tfstate'
         backendAzureRmKey: 'test.terraform.tfstate'
+      enabled: false
 
     - task: TerraformTaskV3@3
       displayName: Terraform validate
       inputs:
         provider: 'azurerm'
         command: 'validate'
+      enabled: false
 
     # OPTIONAL - This step is needed only if your Terraform VM uses an SSH key pair for login and you want your pipeline agent to connect to it. 
     # Generate an SSH key pair in your local/AZ Cloud shell. Use the public key in the Terraform VM module. 
@@ -78,6 +81,7 @@ stages:
         command: 'apply'
         workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/test'
         environmentServiceNameAzureRM: '$(azureServiceConnectionId)'
+      enabled: false
 
     #--------------------------------------------#
     # Selenium (UI) Test Suite - Archive the package  
@@ -183,6 +187,7 @@ stages:
             displayName: 'Install JMeter 5.2.1'
             inputs:
               jmeterVersion: '5.2.1'
+            enabled: false
           # Jmeter - Endurance Test Suite     
           - task: Bash@3
             displayName: 'Endurance Test Suite'
@@ -200,6 +205,7 @@ stages:
             inputs:
               htmlType: 'Jmeter'
               JmeterReportsPath: '$(Build.SourcesDirectory)/endurance-test-report'
+            enabled: false
           # Jmeter - Stress Test Suite    
           - task: Bash@3
             displayName: 'Stress Test Suite'
@@ -216,7 +222,8 @@ stages:
             displayName: 'Publish Stress Test Results'
             inputs:
               htmlType: 'Jmeter'
-              JmeterReportsPath: '$(Build.SourcesDirectory)/stress-test-report'   
+              JmeterReportsPath: '$(Build.SourcesDirectory)/stress-test-report'
+            enabled: false 
 
           # Print Performance Test Logs
           - task: Bash@3
@@ -234,7 +241,7 @@ stages:
   - deployment: VMDeploy
     displayName: Selenium Tests
     environment:
-      name: test-vm         
+      name: test         
       resourceType: VirtualMachine
     strategy:
       runOnce:
