@@ -1,15 +1,12 @@
 name: Azure Pipelines
-
 # Start with a minimal pipeline that you can customize to build and deploy your code.
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 trigger:
   - main
-
 # The agent pool name, if you are using Udacity Cloud lab. 
 # Otherwise, comment out the line below. 
 pool: AgentPool
-
 variables:
   python.version: '3.8.10'
   # The service connection name as used in the DevOps project settings
@@ -18,7 +15,6 @@ variables:
   projectRoot: $(System.DefaultWorkingDirectory)
   # Environment name
   environmentName: 'test'
-
 stages:
 #--------------------------------------------#  
 # BUILD STAGE
@@ -49,14 +45,12 @@ stages:
         backendAzureRmContainerName: 'tfstate'
         backendAzureRmKey: 'test.terraform.tfstate'
       enabled: false
-
     - task: TerraformTaskV3@3
       displayName: Terraform validate
       inputs:
         provider: 'azurerm'
         command: 'validate'
       enabled: false
-
     # OPTIONAL - This step is needed only if your Terraform VM uses an SSH key pair for login and you want your pipeline agent to connect to it. 
     # Generate an SSH key pair in your local/AZ Cloud shell. Use the public key in the Terraform VM module. 
     # Install public key and private key file to the pipeline agent, using the task below. 
@@ -82,7 +76,6 @@ stages:
         workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/test'
         environmentServiceNameAzureRM: '$(azureServiceConnectionId)'
       enabled: false
-
     #--------------------------------------------#
     # Selenium (UI) Test Suite - Archive the package  
     # "ArchiveFiles@2" picks up the web package and archives it.
@@ -97,7 +90,6 @@ stages:
     - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId)-uitests.zip   # Same as the archiveFile artifact above. 
       displayName: 'Upload Package'
       artifact: drop-uitests
-
     #--------------------------------------------#    
     # FakeRestAPI - Archive
     - task: ArchiveFiles@2
@@ -111,7 +103,6 @@ stages:
     - publish: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId)-fakerestapi.zip'
       displayName: 'Upload fakerrestapi Package'
       artifact: drop-fakerestapi
-
     #--------------------------------------------#  
     # JMeter (Performance) Test Suite - Archive
     # ToDo: Complete the ArchiveFiles@2 task and publish step 
@@ -126,7 +117,6 @@ stages:
     - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId)-perftests.zip
       displayName: 'Upload Package'
       artifact: drop-perftests
-
 #--------------------------------------------#  
 # DEPLOYMENT STAGE
 #--------------------------------------------#    
@@ -148,7 +138,6 @@ stages:
               appName: 'luiyi-AppService'
               appType: webApp
               package: $(Pipeline.Workspace)/drop-fakerestapi/$(Build.BuildId)-fakerestapi.zip 
-
           #--------------------------------------------#    
           # Postman - Install Newman    
           - task: CmdLine@2
@@ -180,7 +169,6 @@ stages:
               searchFolder: 'automatedtesting/postman'
               mergeTestResults: true
               testRunTitle: 'Publish test results'
-
         #--------------------------------------------#    
           # Jmeter - Install Jmeter
           - task: JMeterInstaller@0
@@ -224,7 +212,6 @@ stages:
               htmlType: 'Jmeter'
               JmeterReportsPath: '$(Build.SourcesDirectory)/stress-test-report'
             enabled: false 
-
           # Print Performance Test Logs
           - task: Bash@3
             displayName: 'Print Performance Test Logs'
@@ -249,7 +236,6 @@ stages:
           steps:
           - download: current
             artifact: drop-uitests
-
           - task: Bash@3
             displayName: Selenium Tests
             inputs:
@@ -284,7 +270,6 @@ stages:
                 cat selenium.log
                 echo "Completed Selenium Tests. Check selenium.log for results."
                 
-
 #--------------------------------------Destroy Resources---------------------------
 #- stage: Destroy_Resources
 #  jobs:
@@ -304,12 +289,3 @@ stages:
 #        workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/test'
 #        backendServiceArm: '$(azureServiceConnectionId)'
 #        backendAzureRmResourceGroupName: 'Azuredevops'
-#        backendAzureRmStorageAccountName: 'tfstate2583313850'
-#        backendAzureRmContainerName: 'tfstate'
-#        backendAzureRmKey: 'test.terraform.tfstate'
-#    - task: 'Terrafom Destroy'
-#      inputs:
-#        provider: 'azurerm'
-#        command: 'destroy'
-#        workingDirectory: '$(System.DefaultWorkingDirectory)/terraform/environments/test'
-#        environmentServiceNameAzureRM: '$(azureServiceConnectionId)' 
