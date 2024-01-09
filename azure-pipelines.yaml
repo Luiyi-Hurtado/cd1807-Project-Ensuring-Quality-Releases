@@ -155,7 +155,7 @@ stages:
             displayName: Install Newman
             inputs:
               script: |
-                sudo apt-get -y install npm@latest
+                sudo apt-get -y install npm
                 sudo npm install -g newman
               workingDirectory: '$(System.DefaultWorkingDirectory)/automatedtesting/postman'
           # Postman Data Validation Test Suite    
