@@ -4,7 +4,7 @@
 	"values": [
 		{
 			"key": "url",
-			"value": "http://luiyi-ApppService.azurewebsites.net/api",
+			"value": "http://luiyi-appservice.azurewebsites.net/api",
 			"enabled": true
 		}
 	],
